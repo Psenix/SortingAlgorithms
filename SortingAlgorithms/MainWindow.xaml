@@ -20,8 +20,8 @@
                 <ComboBoxItem Content="Bubble Sort"/>
                 <ComboBoxItem Content="Insertion Sort"/>
                 <ComboBoxItem Content="Selection Sort"/>
-                <ComboBoxItem Content=""/>
-                <ComboBoxItem Content=""/>
+                <ComboBoxItem Content="Merge Sort"/>
+                <ComboBoxItem Content="Quick Sort"/>
                 <ComboBoxItem Content=""/>
                 <ComboBoxItem Content=""/>
                 <ComboBoxItem Content=""/>

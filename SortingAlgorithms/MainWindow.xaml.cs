@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,7 +24,7 @@ namespace SortingAlgorithms
     /// </summary>
     public partial class MainWindow : Window
     {
-        List<int> toSort = new List<int>();
+        List<int> toSort = new List<int> { };
         readonly List<Rectangle> visualValues = new List<Rectangle>();
         int amount = 100;
         public MainWindow()
@@ -115,6 +117,79 @@ namespace SortingAlgorithms
                     task.Start();
                 }
             }
+        }
+
+        private List<int> mergeSort(List<int> toSort)
+        {
+            int mid = toSort.Count / 2;
+
+            if (toSort.Count < 2)
+            {
+                return toSort;
+            }
+
+            List<int> leftHalf = toSort.Take(mid).ToList();
+            toSort = toSort.Skip(mid).ToList();
+            return merge(mergeSort(leftHalf), mergeSort(toSort));
+        }
+
+        private List<int> merge(List<int> left, List<int> right)
+        {
+            List<int> merged = new List<int> { };
+            while (left.Count > 0 && right.Count > 0)
+            {
+                if (left[0] < right[0])
+                {
+                        merged.AddRange(left);
+                }
+                else
+                {
+                        merged.AddRange(right);
+                }
+            }
+            return merged;
+        }
+
+        private List<int> quickSort(List<int> toSort, int left, int right)
+        {
+            //int left = 0;
+            //int right = toSort.Count - 1;
+
+            if(left > right)
+            {
+                return null;
+            }
+
+            int partitionIndx = partition(toSort, left, right);
+            quickSort(toSort, left, partitionIndx - 1);
+            quickSort(toSort, partitionIndx + 1, right);
+            Task task = new Task(visualizeSorting, left);
+            task.Start();
+            Task task2 = new Task(visualizeSorting, right);
+            task2.Start();
+
+            return toSort;
+        }
+
+        private int partition(List<int> toSort, int left, int right)
+        {
+            int pivotVal = toSort[right];
+            int partitionIndx = left - 1;
+            
+            for(int i = left; i < right; i++)
+            {
+                if (toSort[i] <= pivotVal)
+                {         
+                    partitionIndx++;
+                    (toSort[partitionIndx], toSort[i]) = (toSort[i], toSort[partitionIndx]);
+                }
+            }
+
+            //int saveValOut = toSort[right];
+            //toSort[right] = toSort[partitionIndx];
+            //toSort[partitionIndx] = saveValOut;
+            (toSort[right], toSort[partitionIndx + 1]) = (toSort[partitionIndx + 1], toSort[right]);
+            return partitionIndx + 1;
         }
 
         private void Input_TextChanged(object sender, TextChangedEventArgs e)
@@ -220,6 +295,27 @@ namespace SortingAlgorithms
             visualValues.Clear();
         }
 
+        private void show(List<int> toSort)
+        {
+            foreach (Rectangle r in visualValues)
+            {
+                Grid.Children.Remove(r);
+            }
+            for (int i = 0; i < toSort.Count; i++)
+            {
+                Rectangle rectangle = new Rectangle()
+                {
+                    Fill = Brushes.White,
+                    VerticalAlignment = VerticalAlignment.Stretch,
+                    Uid = "Rectangle_" + (toSort[i])
+                };
+                Grid.Children.Add(rectangle);
+                Grid.SetColumn(rectangle, i);
+                Grid.SetRow(rectangle, toSort.Count - toSort[i]);
+                Grid.SetRowSpan(rectangle, toSort[i] + 1);
+            }
+        }
+
 
         private void sort_Click(object sender, RoutedEventArgs e)
         {
@@ -242,6 +338,15 @@ namespace SortingAlgorithms
                 case "Selection Sort":
                     MessageBox.Show("Will now be sorted (Selection)");
                     selectionSort(toSort);
+                    break;
+                case "Merge Sort":
+                    MessageBox.Show("Will now be sorted (Merge)");
+                    List<int> finished = mergeSort(toSort);
+                    show(finished);
+                    break;
+                case "Quick Sort":
+                    MessageBox.Show("Will now be sorted (Quick)");
+                    quickSort(toSort, 0, toSort.Count - 1);
                     break;
             }
 
