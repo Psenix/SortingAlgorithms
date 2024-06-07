@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -44,7 +45,7 @@ namespace SortingAlgorithms
             toSort = toSort.OrderBy(x => random.Next()).ToList();
         }
 
-        private void BubbleSort(List<int> toSort)
+        private async void BubbleSort(List<int> toSort)
         {
             for(int i = 0; i < toSort.Count; ++i)
             {
@@ -52,11 +53,16 @@ namespace SortingAlgorithms
                 {
                     if (toSort[j] > toSort[j + 1])
                     {
+                        myVisualizer(toSort[j], j + 1);
+                        myVisualizer(toSort[j + 1], j);
+                        await Task.Delay(1);
                         int saveVal = toSort[j];
                         toSort[j] = toSort[j + 1];
                         toSort[j + 1] = saveVal;
-                        Task task = new Task(visualizeSorting, toSort[j]);
-                        task.Start();
+                        whiten(toSort[j]);
+                        whiten(toSort[j + 1]);
+                        //Task task = new Task(visualizeSorting, toSort[j]);
+                        //task.Start();
                     }
                 }
             }
@@ -79,16 +85,21 @@ namespace SortingAlgorithms
             //}
         }
 
-        private void insertionSort(List<int> toSort)
+        private async void insertionSort(List<int> toSort)
         {
             for(int i = 1; i < toSort.Count; i++)
             {
                 int j = i - 1;
                 while(j > -1 && toSort[j] > toSort[i])
                 {
+                    //myVisualizer(toSort[j], i);
+                    //myVisualizer(toSort[i], j);
+                    //await Task.Delay(1);
                     int saveVal = toSort[j];
                     toSort[j] = toSort[i];
                     toSort[i] = saveVal;
+                    //whiten(toSort[j]);
+                    //whiten(toSort[i]);
                     Task task = new Task(visualizeSorting, toSort[j]);
                     task.Start();
                     j--;
@@ -96,7 +107,7 @@ namespace SortingAlgorithms
             }
         }
 
-        private void selectionSort(List<int> toSort)
+        private async void selectionSort(List<int> toSort)
         {
             for(int i = 0; i < toSort.Count; i++)
             {
@@ -110,11 +121,17 @@ namespace SortingAlgorithms
                 }
                 if(min != i)
                 {
+
+                    myVisualizer(toSort[min], i);
+                    myVisualizer(toSort[i], min);
+                    await Task.Delay(1);
+
                     int saveVal = toSort[i];
                     toSort[i] = toSort[min];
                     toSort[min] = saveVal;
-                    Task task = new Task(visualizeSorting, toSort[i]);
-                    task.Start();
+
+                    whiten(toSort[i]);
+                    whiten(toSort[min]);
                 }
             }
         }
@@ -284,6 +301,23 @@ namespace SortingAlgorithms
             {
                 MessageBox.Show(ex.Message);
             }
+        }
+
+        private void myVisualizer(int num, int i)
+        {
+            Rectangle rectangle = null;
+
+            rectangle = visualValues.Where(item => item.Uid == "Rectangle_" + num).FirstOrDefault();
+            rectangle.Fill = Brushes.Red;
+            Grid.SetColumn(rectangle, i);
+        }
+
+        private void whiten(int num)
+        {
+            Rectangle rectangle = null;
+
+            rectangle = visualValues.Where(item => item.Uid == "Rectangle_" + num).FirstOrDefault();
+            rectangle.Fill = Brushes.White;
         }
 
         private void ResetVariables()
